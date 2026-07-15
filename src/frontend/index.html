@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI UI Audit Chatbot</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0" />
+    <link rel="stylesheet" href="interface_css.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+       .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        .header-right .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0;
+        }
+
+        .help-dropdown .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0;
+        }
+    </style>
+</head>
+<body>
+    <header id="top-header">
+        <div class="header-content">
+            <div class="header-left">
+                <span class="logo-text">UI Audit AI</span>
+            </div>
+
+            <div class="header-right">
+                <button class="icon-btn" title="help" onclick="toggleDropdown(event)">
+                    <span id="help-icon" class="material-symbols-outlined">help</span>
+                </button>
+
+                <div id="help-dropdown" class="dropdown-content">
+                    <div class="dropdown-item">
+                        <span class="material-symbols-outlined">help</span>
+                        <span>Help Center</span>
+                    </div>
+                    <div class="dropdown-item">
+                        <span class="material-symbols-outlined">settings</span>
+                        <span>Settings</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="app-container">
+        <div id="chat-container">
+            <div id="welcome-screen">
+                <h1>Hi, How may I help you today?</h1>
+                <p>Upload a UI screenshot for a technical audit or ask a UX question.</p>
+            </div>
+        </div>
+
+        <div id="loader"><span>Thinking...</span></div>
+
+        <div class="input-area">
+            <div class="input-container">
+                <div id="preview-area"></div>
+                <textarea id="user-input" placeholder="Ask about your UI design..." rows="1" oninput="autoGrow(this)" onkeypress="handleKeyPress(event)"></textarea>
+                
+                <div class="input-actions">
+                    <label for="file-input" class="icon-btn" style="cursor:pointer">
+                        <span class="material-symbols-outlined">add</span>
+                    </label>
+                    <input type="file" id="file-input" style="display:none" accept="image/*" onchange="handleFileSelect()">
+                    
+                    <button class="icon-btn" onclick="sendMessage()">
+                        <span class="material-symbols-outlined">send</span>
+                    </button>
+                </div>
+            </div>
+            <div class="disclaimer-text">AI can make mistakes. Check important info.</div>
+        </div>
+    </div>
+
+    <div id="image-modal" class="modal" onclick="closeModal()">
+        <img class="modal-content" id="full-image" onclick="event.stopPropagation()">
+    </div>
+
+    <script>
+        let chatHistory = [];
+        const chatContainer = document.getElementById('chat-container');
+        const previewArea = document.getElementById('preview-area');
+        const userInput = document.getElementById('user-input');
+        const loader = document.getElementById('loader');
+        let selectedFile = null;
+
+        function autoGrow(element) {
+            element.style.height = "auto";
+            element.style.height = (element.scrollHeight) + "px";
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function handleFileSelect() {
+            const fileInput = document.getElementById('file-input');
+            if (fileInput.files.length > 0) {
+                selectedFile = fileInput.files[0];
+                const url = URL.createObjectURL(selectedFile);
+                previewArea.innerHTML = `<div class="preview-wrapper"><img src="${url}" class="pending-img"><div class="cancel-btn" onclick="cancelImage()"><span class="material-symbols-outlined">close</span></div></div>`;
+            }
+        }
+
+        function cancelImage() {
+            selectedFile = null;
+            previewArea.innerHTML = '';
+            document.getElementById('file-input').value = '';
+        }
+
+        function openModal(src) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('full-image');
+            modalImg.src = src;
+            modal.style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById('image-modal').style.display = "none";
+        }
+
+        function appendMessage(content, sender, type = 'text') {
+            const welcome = document.getElementById('welcome-screen');
+            if (welcome) welcome.remove();
+
+            const msgDiv = document.createElement('div');
+
+            if (type === 'image') {
+                msgDiv.className = 'user-image-container';
+                msgDiv.innerHTML = `<img src="${content}" class="image-preview" onclick="openModal('${content}')">`;
+                chatContainer.appendChild(msgDiv);
+            } else {
+                msgDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
+                chatContainer.appendChild(msgDiv);
+
+                if (sender === 'ai') {
+                    typeEffect(msgDiv, content);
+                } else {
+                    msgDiv.innerHTML = content;
+                }
+            }
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function typeEffect(element, fullText) {
+            let index = 0;
+            const speed = 1;
+            element.innerHTML = '<div class="typing-wrapper"></div>';
+            const wrapper = element.querySelector('.typing-wrapper');
+            
+            const timer = setInterval(() => {
+                if (index < fullText.length) {
+                    index += 2;
+                    if (index > fullText.length) index = fullText.length;
+                    wrapper.innerHTML = marked.parse(fullText.substring(0, index));
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                } else {
+                    clearInterval(timer);
+                    element.innerHTML = marked.parse(fullText);
+                }
+            }, speed);
+        }
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text && !selectedFile) {
+                alert("Please enter a question or upload an image.");
+            return;
+            }
+
+            if (selectedFile) appendMessage(URL.createObjectURL(selectedFile), 'user', 'image');
+            if (text) appendMessage(text, 'user');
+
+            const fileToSend = selectedFile;
+            const textToSend = text;
+
+            userInput.value = '';
+            userInput.style.height = "auto";
+            cancelImage();
+
+            await processUpload(fileToSend, textToSend);
+        }
+
+        async function processUpload(file, textQuery) {
+            loader.style.display = 'flex';
+            const formData = new FormData();
+            if (file) formData.append('file', file);
+            // Even if query is empty, send an empty string or specific instruction
+            formData.append('query', textQuery || "");
+
+            // Send the history gathered so far
+            formData.append('history', JSON.stringify(chatHistory));
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/analyze/ui-screenshot', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 1. Handle Visual Feedback (The image with boxes)
+                    if (data.audited_image_base64) {
+                        const imgSrc = `data:image/jpeg;base64,${data.audited_image_base64}`;
+                        appendMessage(imgSrc, 'ai', 'image');
+                    }
+
+                    // 2. Prepare the combined text content
+                    let aiContent = "";
+                    if (data.opencv_data) {
+                        aiContent = `### Technical Metrics\n* **Whitespace:** ${data.opencv_data.whitespace_ratio}%\n* **Small Elements:** ${data.opencv_data.small_elements_found}\n\n---\n\n`;
+                    }
+                    aiContent += data.gemini_response;
+
+                    // 3. Display the message to the user
+                    appendMessage(aiContent, 'ai');
+
+                    // 4. UPDATE HISTORY
+                    // Store the text query and the RAW gemini response
+                    chatHistory.push({role: "user", parts: [{text: textQuery}]});
+                    chatHistory.push({ role: "model", parts: [{ text: data.gemini_response }] });
+                    
+                    // Keep history lean (Last 10 turns = 20 entries)
+                    if (chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+                    
+                } else {
+                    appendMessage(`Error: ${data.detail || "Server error"}`, "ai");
+                }
+            } catch (error) {
+                appendMessage("Backend is not responding. Ensure your Python server is running.", "ai");
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            document.getElementById("help-dropdown").classList.toggle("show");
+        }
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+            const dropdown = document.getElementById("help-dropdown");
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        }
+
+        document.addEventListener("paste", (event) => {
+        const items = event.clipboardData?.items;
+        if (!items) return;
+
+        for (let item of items) {
+            if (item.type.indexOf("image") !== -1) {
+                const file = item.getAsFile();
+
+                if (!file) return;
+
+                // Store as selected file (same flow as upload button)
+                selectedFile = file;
+
+                // Show preview (reuse your existing preview UI)
+                const url = URL.createObjectURL(file);
+
+                previewArea.innerHTML = `
+                    <div class="preview-wrapper">
+                        <img src="${url}" class="pending-img">
+                        <div class="cancel-btn" onclick="cancelImage()">
+                            <span class="material-symbols-outlined">close</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+:root {
+    --bg-color: #fcfcfd; 
+    --user-bubble: #f0f2f5;
+    --text-main: #1f2937;
+    --border-color: #eeeeee;
+    --hover-gray: #F5F5F5;
+    --content-width: 850px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color); 
+    overflow-y: auto;
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    align-items: center; 
+    position: relative;
+}
+
+#top-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-color);
+    height: 65px;
+    z-index: 1000;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-content {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-text {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* The Dropdown Menu */
+.dropdown-content {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 16px;
+    background-color: #ffffff;
+    min-width: 170px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 8px 0;
+    z-index: 1001;
+    overflow: hidden;
+
+    user-select: none;
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+/* Individual Rows */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-main);
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-gray);
+}
+
+.dropdown-item .material-symbols-outlined {
+    font-size: 20px;
+    /* Since we want these filled for consistency with your other icons */
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+}
+
+/* Show class for JS */
+.show {
+    display: block;
+}
+
+#chat-container {
+    width: 100%;
+    max-width: var(--content-width);
+    padding: 40px 20px 200px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex: 1;
+    padding-top: 85px !important;
+}
+
+#welcome-screen {
+    margin-top: 20vh;
+    text-align: center;
+    width: 100%;
+}
+
+#welcome-screen h1 {
+    font-size: 2.8rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 12px;
+}
+
+.input-area {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(to top, var(--bg-color) 70%, transparent);
+    padding: 10px 0 20px 0;
+    z-index: 100;
+}
+
+.input-container {
+    width: 90%; 
+    max-width: var(--content-width);
+    max-height: 250px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 24px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.disclaimer-text {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 12px;
+    text-align: center;
+    width: 100%;
+    letter-spacing: 0.1px;
+}
+
+#user-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    resize: none;
+    padding: 12px;
+    background: transparent;
+    font-family: inherit;
+}
+
+#preview-area {
+    display: flex;
+    padding: 10px;
+    gap: 10px;
+}
+
+.preview-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.pending-img {
+    height: 80px;
+    width: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.cancel-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #1f2937;
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.cancel-btn span {
+    font-size: 14px !important;
+}
+
+.user-message {
+    align-self: flex-end;
+    background-color: var(--user-bubble);
+    color: var(--text-main);
+    padding: 12px 20px;
+    border-radius: 20px;
+    max-width: 80%;
+    line-height: 1.6;
+}
+
+.user-image-container {
+    align-self: flex-end;
+    margin-bottom: 5px;
+}
+
+.image-preview {
+    max-width: 350px;
+    max-height: 450px;
+    object-fit: contain;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.ai-message {
+    width: 100%;
+    min-width: 0; 
+    line-height: 1.8;
+    color: #374151;
+    font-size: 16px;
+    text-align: justify;
+    margin-top: 10px;
+}
+
+.typing-wrapper {
+    width: 100%;
+}
+
+/* --- Buttons & Icons --- */
+.input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: var(--hover-gray);
+    color: #111827;
+}
+
+#loader {
+    position: fixed;
+    bottom: 160px; 
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #6b7280;
+    background: #ffffff;
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    z-index: 2000; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+body::-webkit-scrollbar {
+    width: 8px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
+}
+
+body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.input-area, 
+.input-container, 
+.icon-btn, 
+.cancel-btn,
+#welcome-screen,
+.user-image-container {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;     /* IE 10 and 11 */
+    user-select: none;         /* Standard syntax */
+}
+
+.ai-message, 
+.user-message,
+#user-input {
+    -webkit-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+/* Remove the blue "tap highlight" on mobile devices for buttons */
+.icon-btn, .cancel-btn {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.modal {
+    display: none; /* Keep this as default */
+    position: fixed; 
+    z-index: 9999; /* Higher z-index to ensure it is on top of everything */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    max-width: 80%;  /* Set to your 80% preference */
+    max-height: 80%;
+    border-radius: 12px;
+    background-color: white;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    cursor: default;
+}
+
+.image-preview {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.image-preview:hover {
+    opacity: 0.9;
+}
